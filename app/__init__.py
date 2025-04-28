@@ -1,1 +1,2 @@
-"""Initialize the app package.""""""Core application logic and configurations."""
+"""Initialize the app package."""
+"""Core application logic and configurations."""
