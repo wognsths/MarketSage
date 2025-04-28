@@ -32,7 +32,7 @@ class StockInfoFetcher:
 
         parsed = {
             "ticker": ticker,
-            "date": pd.to_datetime(item.get('stck_bsop_date'), format="%Y%m%d"),
+            "datetime": pd.to_datetime(item.get('stck_bsop_date'), format="%Y%m%d"),
             "open": item.get('stck_oprc'),
             "high": item.get('stck_hgpr'),
             "low": item.get('stck_lwpr'),
