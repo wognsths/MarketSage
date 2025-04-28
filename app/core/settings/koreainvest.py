@@ -1,11 +1,11 @@
-import os
-from pydantic_settings import BaseSettings, SettingsConfigDict
+from pydantic_settings import BaseSettings
+from pydantic import Field
 from app.common.types import MissingAPIKeyError
 
 class KISsettings(BaseSettings):
-    KIS_API_KEY: str = os.getenv("KIS_API_KEY", "")
-    KIS_API_SECRET: str = os.getenv("KIS_API_SECRET", "")
-    KIC_ACC_NO: str = os.getenv("KIC_ACC_NO", "")
+    KIS_API_KEY: str = Field(..., env="KIS_API_KEY")
+    KIS_API_SECRET: str = Field(..., env="KIS_API_SECRET")
+    KIC_ACC_NO: str = Field(..., env="KIC_ACC_NO")
 
     @property
     def api_info(self) -> dict:
@@ -18,11 +18,11 @@ class KISsettings(BaseSettings):
         ]
         if missing_api_keys:
             raise MissingAPIKeyError(missing_keys=missing_api_keys)
-        
+
         return {
             "api_key": self.KIS_API_KEY,
             "api_secret": self.KIS_API_SECRET,
             "acc_no": self.KIC_ACC_NO
         }
-    
+
 kissettings = KISsettings()
