@@ -1,0 +1,13 @@
+# Ignore test PDF files and other large test files
+*.pdf
+*.docx
+*.pptx
+*.xlsx
+*.hwp
+*.hwpx
+*.jpg
+*.jpeg
+*.png
+
+# Don't ignore placeholder files
+!README.md 
