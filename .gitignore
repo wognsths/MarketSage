@@ -172,3 +172,7 @@ cython_debug/
 
 # PyPI configuration file
 .pypirc
+
+
+# Downloaded files
+app/core/services/Websearch/pdf
