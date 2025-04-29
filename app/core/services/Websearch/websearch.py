@@ -1,15 +1,6 @@
 import httpx
-from pydantic import BaseModel
-from typing import List, Literal
 from app.core.settings.bingsearch import bingsettings
-
-
-class SearchResult(BaseModel):
-    type: Literal["web", "news"]
-    title: str
-    url: str
-    snippet: str
-    provider: str | None = None
+from app.core.models.models import SearchResult
 
 
 class BingAPI:
