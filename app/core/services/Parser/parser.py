@@ -3,7 +3,7 @@ import json
 from bs4 import BeautifulSoup
 from app.core.settings.upstage import upstagesettings
 from app.core.models.models import DocumentContent, ParsedDocument
-from typing import Optional
+from typing import Optional, Tuple
 
 # ---- Constants ----
 MAX_FILE_SIZE_MB = 50
