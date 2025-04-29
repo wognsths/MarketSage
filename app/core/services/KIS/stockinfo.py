@@ -1,5 +1,17 @@
 from app.core.services.KIS.broker import create_broker
 import pandas as pd
+from pydantic import BaseModel
+from datetime import datetime
+from typing import Literal
+
+class StockPrice(BaseModel):
+    ticker: str
+    datetime: datetime
+    open: str | None
+    high: str | None
+    low: str | None
+    close: str | None
+    volume: str | None
 
 class StockInfoFetcher:
     """
