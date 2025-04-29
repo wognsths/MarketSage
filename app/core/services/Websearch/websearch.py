@@ -1,6 +1,7 @@
 import httpx
 from app.core.settings.bingsearch import bingsettings
 from app.core.models.models import SearchResult
+from typing import Literal, List
 
 
 class BingAPI:
