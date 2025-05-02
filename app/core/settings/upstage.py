@@ -1,6 +1,6 @@
 from pydantic_settings import BaseSettings
 from pydantic import Field
-from app.common.types import MissingAPIKeyError
+from app.common.errors import MissingAPIKeyError
 
 class UPSTAGEsettings(BaseSettings):
     UPSTAGE_API_KEY: str = Field(..., env="UPSTAGE_API_KEY")

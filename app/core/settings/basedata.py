@@ -1,7 +1,7 @@
 import os
 import pandas as pd
 
-class StockBaseData:
+class BaseData:
     DATA_DIR = "./data"
 
     def data(self) -> dict[str, pd.DataFrame]:
@@ -13,4 +13,4 @@ class StockBaseData:
                 data_dict[key] = pd.read_csv(filepath, encoding="utf-8")
         return data_dict
     
-stockbasedata = StockBaseData()
+stockbasedata = BaseData()
