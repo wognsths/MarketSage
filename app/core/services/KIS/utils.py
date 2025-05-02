@@ -1,7 +1,7 @@
 from app.core.services.KIS.stockinfo import StockInfoFetcher
 import pandas as pd
 from typing import Union, List, Dict
-from app.core.settings.data import stockbasedata
+from app.core.settings.basedata import stockbasedata
 import logging
 
 logger = logging.getLogger(__name__)
