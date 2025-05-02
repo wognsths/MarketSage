@@ -49,15 +49,15 @@ class HostAgent:
 
     def __init__(
         self,
-        remote_agent_adresses: List[str],
+        remote_agent_addresses: List[str],
         task_callback: TaskUpdateCallback
     ):
         self.task_callback = task_callback
         self.remote_agent_connections: dict[str, RemoteAgentConnections] = {}
         self.cards: dict[str, AgentCard] = {}
 
-        for adress in remote_agent_adresses:  ## adress example: http://localhost:8001(db-agent)
-            card_resolver = A2ACardResolver(adress)
+        for address in remote_agent_addresses:  ## address example: http://localhost:8001(db-agent)
+            card_resolver = A2ACardResolver(address)
             card = card_resolver.get_agent_card() # JSON 반환 -> dict
             remote_connection = RemoteAgentConnections(card)
             self.remote_agent_connections[card.name] = remote_connection  # card name: db-agent, value: remote_connection
@@ -89,6 +89,7 @@ class HostAgent:
             tools=[
                 self.list_remote_agents,
                 self.send_task,
+                self.run_planner
             ],
         )
     
@@ -111,15 +112,14 @@ Monitoring:
 Guidelines:
 - Do not generate responses yourself. Always rely on tools to fulfill requests.
 - If the user input is vague or unclear, use the `ask_user` tool to ask for clarification.
-- If the request lacks a concrete execution plan, use the `run_planner` tool to generate a structured task plan.
-{f"Plans: {self.return_plan}" if self.run_planner else ""}
+- Unless the user request has a clearly-specified execution plan, request to the "planner-agent" to generate a structured task plan.
 
 Focus on the most recent part of the conversation.
 
 If there is an active agent, continue by sending the next message using `create_task`.
 
 Available Agents:
-{self.agents}
+{self.list_remote_agents()}
 
 Current active agent: {current_agent['active_agent']}
 """
@@ -150,6 +150,7 @@ Current active agent: {current_agent['active_agent']}
                 {"name": card.name, "description": card.description}
             )
         return remote_agent_info
+    
     
     async def send_task(
             self,

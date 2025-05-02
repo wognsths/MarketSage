@@ -1,0 +1,49 @@
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry]
+name = "marketsage-host-agent"
+version = "1.0.0"
+description = "MarketSage Host Agent for coordinating remote agents"
+authors = ["MarketSage Team"]
+readme = "README.md"
+repository = "https://github.com/user/MarketSage"  # Update with your actual GitHub repository URL
+packages = [{include = "app"}]
+
+# Package dependencies
+[tool.poetry.dependencies]
+python = "^3.9"
+fastapi = "^0.103.0"
+uvicorn = "^0.23.0"
+pydantic = "^2.0.0"
+httpx = "^0.24.0"
+httpx-sse = "^0.3.0"
+google-generativeai = "^0.3.0"
+google-adk = "^0.0.1"  # Adjust version as needed
+starlette = "^0.27.0"
+asyncio = "^3.4.3"
+uuid = "^1.30"
+loguru = "^0.7.0"
+
+# Development dependencies
+[tool.poetry.dev-dependencies]
+pytest = "^7.0.0"
+black = "^23.7.0"
+isort = "^5.12.0"
+mypy = "^1.5.0"
+
+# Command-line scripts
+[tool.poetry.scripts]
+host-agent = "app.agent.host.run_agent:main"
+
+# GitHub Packages publishing configuration
+[tool.poetry.urls]
+"GitHub" = "https://github.com/user/MarketSage"  # Update with your actual GitHub repository URL
+
+# For GitHub Packages publication
+[tool.poetry.source.github]
+name = "github"
+url = "https://github.com/user/MarketSage/packages"  # Update with your actual GitHub repository URL
+default = false
+secondary = true 
