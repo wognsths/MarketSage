@@ -10,7 +10,12 @@ class BaseData:
             if filename.endswith(".csv"):
                 filepath = os.path.join(self.DATA_DIR, filename)
                 key = os.path.splitext(filename)[0]
-                data_dict[key] = pd.read_csv(filepath, encoding="utf-8")
+                df = pd.read_csv(filepath, encoding="utf-8")
+
+                if key.lower() in {"kospi", "kosdaq"} and "ticker" in df.columns:
+                    df["ticker"] = df["ticker"].astype(str).str.zfill(6)
+
+                data_dict[key] = df
         return data_dict
-    
+
 stockbasedata = BaseData()

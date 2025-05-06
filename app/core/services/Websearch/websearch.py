@@ -1,20 +1,25 @@
 import httpx
-from app.core.settings.bingsearch import bingsettings
+from app.core.settings.googlesearch import googlesettings
 from app.core.models.models import SearchResult
 from typing import Literal, List
 
 
-class BingAPI:
+class GoogleSearchAPI:
     def __init__(self):
-        self.BING_API_KEY, self.BING_ENDPOINT = bingsettings.api_info
-        self.HEADERS = {"Ocp-Apim-Subscription-Key": self.BING_API_KEY}
+        self.GOOGLE_API_KEY, self.CX_ID, _ = googlesettings.api_info
+        self.BASE_URL = "https://www.googleapis.com/customsearch/v1"
 
-    async def web_search(self, query: str, mkt: str = "en-US") -> List[SearchResult]:
-        url = f"{self.BING_ENDPOINT}/v7.0/search"
-        params = {"q": query, "mkt": mkt}
+    async def web_search(self, query: str, mkt: str = "us") -> List[SearchResult]:
+        params = {
+            "key": self.GOOGLE_API_KEY,
+            "cx": self.CX_ID,
+            "q": query,
+            "gl": mkt,
+            "num": 10,
+        }
         try:
             async with httpx.AsyncClient() as client:
-                response = await client.get(url, headers=self.HEADERS, params=params)
+                response = await client.get(self.BASE_URL, params=params)
                 response.raise_for_status()
                 return self._parse_result(response.json(), type="web")
         except httpx.HTTPStatusError as e:
@@ -23,12 +28,17 @@ class BingAPI:
             print(f"[Web Search Request Failed] {e}")
         return []
 
-    async def news_search(self, query: str, mkt: str = "en-US") -> List[SearchResult]:
-        url = f"{self.BING_ENDPOINT}/v7.0/news/search"
-        params = {"q": query, "mkt": mkt}
+    async def news_search(self, query: str, mkt: str = "us") -> List[SearchResult]:
+        params = {
+            "key": self.GOOGLE_API_KEY,
+            "cx": self.CX_ID,
+            "q": f"{query} site:news.google.com",
+            "gl": mkt,
+            "num": 10,
+        }
         try:
             async with httpx.AsyncClient() as client:
-                response = await client.get(url, headers=self.HEADERS, params=params)
+                response = await client.get(self.BASE_URL, params=params)
                 response.raise_for_status()
                 return self._parse_result(response.json(), type="news")
         except httpx.HTTPStatusError as e:
@@ -39,24 +49,14 @@ class BingAPI:
 
     def _parse_result(self, data: dict, type: Literal["web", "news"]) -> List[SearchResult]:
         results = []
-
-        if type == "web" and "webPages" in data:
-            for item in data["webPages"]["value"]:
-                results.append(SearchResult(
-                    type="web",
-                    title=item["name"],
-                    url=item["url"],
-                    snippet=item["snippet"],
-                ))
-
-        elif type == "news" and "value" in data:
-            for item in data["value"]:
-                results.append(SearchResult(
-                    type="news",
-                    title=item["name"],
-                    url=item["url"],
-                    snippet=item.get("description", ""),
-                    provider=item.get("provider", [{}])[0].get("name", None)
-                ))
-
+        for item in data.get("items", []):
+            results.append(
+                SearchResult(
+                    type=type,
+                    title=item.get("title"),
+                    url=item.get("link"),
+                    snippet=item.get("snippet"),
+                    provider="Google"
+                )
+            )
         return results

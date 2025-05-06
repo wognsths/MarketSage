@@ -4,7 +4,6 @@ from datetime import datetime
 import pandas as pd
 from typing import Union, List
 
-
 class StockInfoFetcher:
     """
     A utility class to fetch stock price information using the KIS (Korea Investment & Securities) API.
@@ -45,7 +44,6 @@ class StockInfoFetcher:
             timeframe=timeframe,
             adj_price=adj_price
         )
-
         data = []
         for item in response.get("output2", []):
             dt = pd.to_datetime(item['stck_bsop_date'], format="%Y%m%d")

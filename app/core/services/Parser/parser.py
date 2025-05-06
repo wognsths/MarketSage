@@ -1,13 +1,20 @@
-import requests
-import json
+import requests, asyncio, json
 from bs4 import BeautifulSoup
 from app.core.settings.upstage import upstagesettings
 from app.core.models.models import DocumentContent, ParsedDocument
 from typing import Optional, Tuple
+from openai import AsyncOpenAI
+from typing import List, Dict
 
 # ---- Constants ----
 MAX_FILE_SIZE_MB = 50
 MAX_FILE_SIZE_BYTES = 1024 ** 2 * MAX_FILE_SIZE_MB
+
+client = AsyncOpenAI(
+    api_key=upstagesettings.UPSTAGE_API_KEY,
+    base_url="https://api.upstage.ai/v1",
+    timeout=60,
+)
 
 # ---- Helpers ----
 def get_mime_type(filename: str) -> Optional[str]:
@@ -137,3 +144,43 @@ class UPSTAGEparser:
             paragraphs=paragraphs,
             tables=tables
         )
+
+async def _llm_fix(md: str, language: str = "Korean") -> Dict[str, str]:
+    messages = [
+        {"role": "system",
+         "content": ("You are a professional financial analyst. "
+                     "Fix the structure of the markdown table below. "
+                     "Mark uncertain values with `#`. Return only the corrected table."
+                     f"The output language must be based on **{language}**")},
+        {"role": "user", "content": md},
+    ]
+    resp = await client.chat.completions.create(model="solar-pro",
+                                                messages=messages,
+                                                temperature=0.1)
+    return resp.choices[0].message.content.strip()
+
+
+
+def _table_to_md(tbl: List[List[str]], idx: int) -> str:
+    if not tbl:
+        return f"### Table {idx}\n\n(empty)\n"
+    hd, *rows = tbl
+    lines = [f"### Table {idx}", "", "| " + " | ".join(hd) + " |",
+             "| " + " | ".join(["---"] * len(hd)) + " |"]
+    for r in rows:
+        lines.append("| " + " | ".join(r) + " |")
+    return "\n".join(lines) + "\n"
+
+async def reconstruct_table(parsed_tables: List[List[List[str]]], concurrency: int = 5) -> str:
+    rough_list = [_table_to_md(t, i+1) for i, t in enumerate(parsed_tables)]
+
+    sem = asyncio.Semaphore(concurrency)
+    async def _task(md):
+        async with sem:
+            try:
+                return await _llm_fix(md)
+            except Exception:
+                return f"### ERROR\n\n# Failed to reconstruct\n\n{md}"
+    
+    fixed = await asyncio.gather(*[_task(md) for md in rough_list])
+    return {f"Table {i+1}": fixed[i] for i in range(len(fixed))}
