@@ -1,7 +1,7 @@
 """
 demo.py
 단일 실행 스크립트:
-  python demo.py --stocks 삼성전자 005930 --tf 1d --market KOSPI
+  python -m app.core.services.KIS.demo --stocks "005930" --tf 1m --opt close --market KOSPI
 """
 import argparse, asyncio, pandas as pd
 from .pipeline import fetch_and_save
